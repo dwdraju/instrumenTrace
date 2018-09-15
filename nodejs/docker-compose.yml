@@ -1,0 +1,25 @@
+version: '3'
+services:
+  jaeger:
+    container_name: 'jaeger'
+    image: jaegertracing/all-in-one:1.6
+    restart: always
+    ports:
+     - "5775:5775/udp"
+     - "6831:6831/udp"
+     - "6832:6832/udp"
+     - "5778:5778"
+     - "16686:16686"
+     - "14268:14268"
+     - "9411:9411"
+
+  instrument_app:
+    container_name: 'instrument_app'
+    restart: always
+    image: node:10
+    volumes:
+      - .:/app
+    ports:
+      - "8085:8080"
+    entrypoint: /bin/sh
+    command: -c "sleep 5 && cd /app/ && yarn && node index.js"
