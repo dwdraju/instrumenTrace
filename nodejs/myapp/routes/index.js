@@ -6,7 +6,7 @@ const tracer = initTracer("express-app");
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-	const span = tracer.startSpan("Express Span");
+	var span = tracer.startSpan("Express Span");
 
 	span.setTag("index", "node");
 	span.log({ title: "express" });
@@ -18,7 +18,7 @@ router.get('/', function(req, res, next) {
 });
 
 router.get('/jaeger/first', function (req, res, next) {
-	const span = tracer.startSpan("Jaeger Span");
+	var span = tracer.startSpan("Jaeger Span");
 	span.setTag("jaeger", "first");
 	console.log('the response will be sent by the next function ...')
 	next()
@@ -29,4 +29,23 @@ router.get('/jaeger/first', function (req, res, next) {
 	span.finish();
 })
 
+router.get('/jaeger/mysql', function(req, res, next){
+	var span = tracer.startSpan("MySQL Connection");
+	span.setTag("jaeger", "mysql", "database");
+	var mysql = require('mysql')
+	var connection = mysql.createConnection({
+	  host     : '',
+	  user     : '',
+	  password : '',
+	  database : ''
+	});
+	connection.connect()
+	connection.query('SELECT * FROM testtable', function (err, result, fields) {
+	  if (err) throw err;
+	  console.log(result);
+	})
+	connection.end()
+	res.send('MySQL connection checked!');
+	span.finish();
+})
 module.exports = router;
